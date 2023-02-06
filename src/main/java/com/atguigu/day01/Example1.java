@@ -14,6 +14,7 @@ public class Example1 {
         var env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         // 设置数据源，并行任务的数量是1个
+        // 先启动`nc -lk 9999`
         var source = env.socketTextStream("localhost", 9999).setParallelism(1);
 
         // map阶段
@@ -28,12 +29,14 @@ public class Example1 {
         var keyedStream = mappedStream.keyBy(r -> r.f0);
 
         // reduce阶段
+        // 每来一条数据，就更新一次累加器，然后将输入数据丢弃，并输入累加器的值
+        // ReduceFunction只有一个泛型，因为输入、输出和累加器的类型相同
         var result = keyedStream
                 .reduce(new WordCount())
                 .setParallelism(1);
 
         // 输出
-        result.print();
+        result.print().setParallelism(1);
 
         // 提交程序
         env.execute();
@@ -51,6 +54,8 @@ public class Example1 {
     }
 
     public static class WordCount implements ReduceFunction<Tuple2<String, Integer>> {
+        // 返回值是新的累加器，会覆盖掉旧的累加器
+        // reduce方法定义的是输入数据和累加器的聚合规则
         @Override
         public Tuple2<String, Integer> reduce(Tuple2<String, Integer> acc, Tuple2<String, Integer> input) throws Exception {
             return Tuple2.of(acc.f0, acc.f1 + input.f1);
