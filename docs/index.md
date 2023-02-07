@@ -46,7 +46,7 @@ Flink对所有的传统的流处理框架是降维打击。
 - 流数据更真实地反映了我们的生活方式（点击流）
 - 传统的数据架构是基于有限数据集的，将数据流人为的变成了离线数据来处理。
 - 我们的目标
-  - 低延迟（Spark Streaming 的延迟是<span style="color:red">秒级</span>（需要攒批然后计算），Flink延迟是<span style="color:red">毫秒级</span>（Spark Streaming的千分之一，Flink是来一条数据就处理一条数据，没有攒批的过程），由于操作系统的软件时钟的精度是毫秒级，所以可以认为Flink是没有延迟的）
+  - 低延迟（Spark Streaming 的延迟是==秒级==（需要攒批然后计算），Flink延迟是==毫秒级==（Spark Streaming的千分之一，Flink是来一条数据就处理一条数据，没有攒批的过程），由于操作系统的软件时钟的精度是毫秒级，所以可以认为Flink是没有延迟的）
   - 高吞吐（加机器）
   - 结果的准确性和良好的容错性（EXACTLY-ONCE，恰好处理一次，精准一次消费）
 
@@ -58,7 +58,7 @@ Flink对所有的传统的流处理框架是降维打击。
 >  窗口一：2020-01-01 00:00:00 $\sim$ 2020-01-01 00:00:10
 >  窗口二：2020-01-01 00:00:10 $\sim$ 2020-01-01 00:00:20
 >  事件由于网络延迟，到达Spark Streaming服务器的时间是：
->  2020-01-01 00:00:11，事件被Spark Streaming分配到了窗口二中，导致计算结果的不准确。Flink是没有这个问题的，<span style="color:red">Flink可以按照事件真正发生的时间处理事件</span>。
+>  2020-01-01 00:00:11，事件被Spark Streaming分配到了窗口二中，导致计算结果的不准确。Flink是没有这个问题的，==Flink可以按照事件真正发生的时间处理事件==。
 
 ## 哪些行业需要处理流数据
 
@@ -115,7 +115,7 @@ Flink对所有的传统的流处理框架是降维打击。
 
 > :memo:这里的LAMBDA和lambda表达式没有关系。
 
-- 用<span style="color:red">两套</span>系统，保证低延迟和结果准确性。
+- 用==两套==系统，保证低延迟和结果准确性。
   - 使用批处理框架（Hive）保证结果的准确性。但是结果可能会有较大的延迟。
   - 使用流处理框架（Spark Streaming）保证结果的低延迟。但是结果可能计算的不准确。
 
@@ -221,7 +221,7 @@ Flink对所有的传统的流处理框架是降维打击。
 >
 > Map算子什么时候会被触发执行？当Map算子的输入到达的时候，触发执行。
 > reduce算子什么时候触发执行呢？当输入数据到达的时候，触发执行。来一条输入数据就要触发一次reduce算子的执行。
-> 算子都是<span style="color:red">被动</span>执行的，数据不来不执行。
+> 算子都是==被动==执行的，数据不来不执行。
 > 这个特性叫做事件驱动，算子的输入事件驱动算子的执行。
 > 生产流水线上的工人（算子），上游的产品到达，触发工人的操作。
 
@@ -487,7 +487,7 @@ ExecutionGraph中的每个顶点都要占用一个线程。所以下图中共有
 
 JobMaster将ExecutionGraph部署到任务管理器执行。
 
-# DataStream API
+# 第三讲，DataStream API
 
 ## 自定义数据源
 
@@ -553,14 +553,14 @@ flatMap是map和filter的泛化，也就是说可以使用flatMap来实现map和
 
 - keyBy的作用：
   - 指定数据的key。
-  - 根据key计算出数据要去下游算子reduce的哪一个并行子任务。
+  - 根据key计算（某种哈希算法，Murmurhash）出数据要去下游算子reduce的哪一个并行子任务。
   - 将数据发送到下游算子reduce的对应的并行子任务中。
 - 终极目标：相同key的数据一定会发送到下游算子reduce的同一个并行子任务中。
 - 不同key的数据也可能发送到下游算子reduce的同一个并行子任务中。
 
 > keyBy不是一个算子，因为不具备计算功能。keyBy的作用只是为数据指定key，并将数据路由到对应的reduce的并行子任务中。
 
-reduce是<span style="color:red">有状态算子</span>（输入相同的情况下，输出不一定相同）。
+reduce是==有状态算子==（输入相同的情况下，输出不一定相同）。
 
 举个有状态函数的例子。下面的函数将全局变量`count`作为内部状态维护。
 
@@ -620,15 +620,15 @@ env
 将数据发送到下游算子的不同的并行子任务。
 
 - `shuffle()`：随机向下游的并行子任务发送数据。:memo:这里的shuffle和之前keyBy的shuffle不是一回事儿！
-- `rebalance()`：将数据轮询发送到下游的<span style="color:red">所有</span>并行子任务中。round-robin。
-- `rescale()`：将数据轮询发送到下游的<span style="color:red">部分</span>并行子任务中。用在下游算子的并行度是上游算子的并行度的整数倍的情况。round-robin。
+- `rebalance()`：将数据轮询发送到下游的==所有==并行子任务中。round-robin。
+- `rescale()`：将数据轮询发送到下游的==部分==并行子任务中。用在下游算子的并行度是上游算子的并行度的整数倍的情况。round-robin算法。
 - `broadcast()`：将数据广播到下游的所有并行子任务中。
 - `global()`：将所有数据发送到下游的第一个（索引为0）并行子任务中。
 - `custom()`：自定义分区。可以自定义将某个`key`的数据发送到下游的哪一个并行子任务中去。
 
 ## 富函数
 
-算子的每一个<span style="color:red">并行子任务</span>都有自己的<span style="color:red">生命周期</span>。
+算子的每一个==并行子任务==都有自己的==生命周期==。
 
 - `open`方法：在算子的计算逻辑执行前执行一次，适合做一些初始化的工作（打开一个文件，打开一个网络连接，打开一个数据库的连接）。生命周期的开始。
 - `close`方法：在算子的计算逻辑执行完毕之后执行一次，适合做一些清理工作。（关闭一个文件，关闭网络连接，关闭数据库连接）。生命周期的结束。
@@ -649,9 +649,9 @@ SinkFunction\<T>：泛型是要输出的数据的泛型
 
 RichSinkFunction\<T>
 
-# 底层API
+# 第四讲，底层API
 
-:memo:底层API（处理函数）都是<span style="color:red">富函数</span>。
+:memo:底层API（处理函数）都是==富函数==。
 
 ## ProcessFunction
 
@@ -681,7 +681,7 @@ RichSinkFunction\<T>
   - 状态变量
   - 定时器
 - 内部状态会每隔一段时间作为检查点保存到状态后端（例如HDFS）。
-- processElement方法和onTimer方法：这两个方法是<span style="color:red">原子性</span>的，无法并发执行。某个时刻只能执行一个方法。因为这两个方法都有可能操作相同的状态变量。例如：到达了一个事件，此时onTimer正在执行，则必须等待onTimer执行完以后，再调用processElement。再比如：到达了一个水位线，想触发onTimer，但此时processElement正在执行，那么必须等待processElement执行完以后再执行onTimer。
+- processElement方法和onTimer方法：这两个方法是==原子性==的，无法并发执行。某个时刻只能执行一个方法。因为这两个方法都有可能操作相同的状态变量。例如：到达了一个事件，此时onTimer正在执行，则必须等待onTimer执行完以后，再调用processElement。再比如：到达了一个水位线，想触发onTimer，但此时processElement正在执行，那么必须等待processElement执行完以后再执行onTimer。
 - 当水位线到达KeyedProcessFunction，如果这条水位线触发了onTimer的执行，则必须等待onTimer执行完以后，水位线才能向下游发送。
 - 当水位线到达ProcessWindowFunction，如果这条水位线触发了process方法的执行，则必须等待process方法执行完以后，水位线才能向下游发送。
 
@@ -699,7 +699,7 @@ RichSinkFunction\<T>
 
 - 每个key都只能访问自己的状态变量，状态变量是每个key独有的。
 - 在`processElement(IN, CTX, OUT)`方法中操作的状态变量，是输入数据`IN`的key所对应的状态变量。
-- 状态变量是<span style="color:red">单例</span>，只会被初始化一次。
+- 状态变量是==单例==，只会被初始化一次。
 - 当Flink程序启动时，会先去状态后端的检查点文件中寻找状态变量，如果找不到，则初始化。如果找到了，则直接读取。符合单例特性。为什么Flink程序启动的时候，先去状态后端寻找状态变量呢？因为Flink不知道程序是第一次启动，还是故障恢复后的启动。如果是故障恢复，则要去保存的检查点文件里寻找状态变量，恢复到最近一次检查点的状态。为了保证计算结果的正确性，状态变量必须被实现为单例模式。
 - `getRuntimeContext().getState(状态描述符)`方法通过状态描述符去状态后端的检查点文件中寻找状态变量，如果找不到，则初始化一个状态变量。
 - 读取值状态变量中的值：`.value()`方法
@@ -784,7 +784,7 @@ RichSinkFunction\<T>
   - createAccumulator：创建空累加器，返回值的泛型是累加器的泛型
   - add：定义输入数据和累加器的聚合规则，返回值是聚合后的累加器
   - getResult：窗口闭合时发出聚合结果，返回值是将要发送的聚合结果
-  - merge：一般不需要实现。只用在<span style="color:red">事件时间会话窗口</span>的情况。
+  - merge：一般不需要实现。只用在==事件时间会话窗口==的情况。
 
 
 ### 将AggregateFunction和ProcessWindowFunction结合使用
@@ -858,7 +858,7 @@ Trigger中的核心方法
 - onEventTime：事件时间定时器
 - clear：窗口闭合时触发调用
 
-# 窗口
+# 第五讲，窗口
 
 ## 窗口概念
 
@@ -868,7 +868,7 @@ Trigger中的核心方法
 
 ## 窗口的本质
 
-> :memo:Flink遵循了<span style="color:red">先分流再开窗</span>的原则。
+> :memo:Flink遵循了==先分流再开窗==的原则。
 
 我们一般在`.keyBy`之后使用`.window`方法来进行开窗，实际上是在keyBy之后的逻辑分区中，再按照窗口进行一次逻辑分区。先分流再开窗。
 
@@ -876,7 +876,7 @@ Trigger中的核心方法
 SELECT count(*) FROM table GROUP BY key, window;
 ```
 
-Flink窗口是<span style="color:red">左闭右开</span>的区间，例如`[0, 5)`的窗口最后一个时间戳是`4999`毫秒。
+Flink窗口是==左闭右开==的区间，例如`[0, 5)`的窗口最后一个时间戳是`4999`毫秒。
 
 ## 窗口类型
 
@@ -905,7 +905,7 @@ Flink窗口是<span style="color:red">左闭右开</span>的区间，例如`[0, 
 - 滑动窗口是固定窗口的更广义的一种形式，滑动窗口由固定的窗口长度和滑动距离组成。
 - `.window(SlidingProcessingTimeWindow.of(Time.seconds(10), Time.seconds(5)))`。
 - 窗口长度固定，可以有重叠
-- 如果一个元素同时属于两个窗口，那么会将元素复制两份，每个窗口分配一个元素。这样就可以保证<span style="color:red">所有的窗口从逻辑上分开处理</span>。
+- 如果一个元素同时属于两个窗口，那么会将元素复制两份，每个窗口分配一个元素。这样就可以保证==所有的窗口从逻辑上分开处理==。
 - 如何计算一条数据属于哪个滑动窗口（窗口长度：10秒钟，滑动距离：5秒钟）呢？事件的时间戳是7s，那么属于哪几个滑动窗口呢？
 
 ```
@@ -942,14 +942,14 @@ starts => [5,0]
 
 > :memo:会话窗口主要用来分析用户的会话，比如像刷抖音这种时长不固定的用户行为。
 
-- 会话窗口的长度是<span style="color:red">不固定</span>的。
+- 会话窗口的长度是==不固定==的。
 - 使用超时时间（`.withGap`）来定义会话窗口。
 - 会话窗口开始时间：窗口中第一个元素的时间戳
 - 会话窗口结束时间：窗口中最后一个元素的时间戳+超时时间
 
 <figure><img src="figure/30.svg" alt="会话窗口" style="width:100%;display:block;margin-left:auto;margin-right:auto;"><figcaption style="text-align:center;color:brown;">图-31 会话窗口</figcaption></figure>
 
-# 逻辑时钟-水位线
+# 第六讲，逻辑时钟-水位线
 
 两种时间语义
 
@@ -964,7 +964,7 @@ starts => [5,0]
 
 <figure><img src="figure/34.svg" alt="打游戏" style="width:100%;display:block;margin-left:auto;margin-right:auto;"><figcaption style="text-align:center;color:brown;">图-34 打游戏</figcaption></figure>
 
-<span style="color:red">由于事件时间的世界里面没有时钟机制</span>，所以我们需要为事件时间的世界提供时钟机制，叫做<span style="color:red">水位线（逻辑时钟）</span>。
+==由于事件时间的世界里面没有时钟机制==，所以我们需要为事件时间的世界提供时钟机制，叫做==水位线（逻辑时钟）==。
 
 时钟的定义：单调递增的序列。
 
