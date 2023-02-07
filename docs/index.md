@@ -386,7 +386,7 @@ source.setParallelism(6)
 
 ## 并行度的设置
 
-并行度指的是算子的并行度。
+并行度指的是==算子==的并行度。
 
 算子并行度的大小不能超过集群可用任务插槽的数量。
 
@@ -441,7 +441,7 @@ $ flink run jar包 -p 16
 <figure><img src="figure/9.svg" alt="Flink中DAG数据结构的转换" style="width:100%;display:block;margin-left:auto;margin-right:auto;"><figcaption style="text-align:center;color:brown;">图-16 Flink中DAG数据结构的转换</figcaption></figure>
 
 - StreamGraph：是根据用户通过Stream API编写的代码生成的最初的有向无环图。用来表示程序的拓扑结构。源码：`StreamGraph.java`
-- JobGraph：StreamGraph在编译的阶段经过优化后生成了JobGraph（源码：`JobGraph.java`），JobGraph就是提交给作业管理器的数据结构。主要的优化为，将多个符合条件（没有shuffle，并行度相同）的算子串在一起作为一个<span style="color:red">任务链节点</span>。保证同一个任务链节点里面的所有算子都在同一个任务插槽的同一个线程中执行。这样算子之间的数据就是本地转发（无需序列化反序列化和网络IO）。两个条件：
+- JobGraph：StreamGraph在编译的阶段经过优化后生成了JobGraph（源码：`JobGraph.java`），JobGraph就是提交给作业管理器的数据结构。主要的优化为，将多个符合条件（没有shuffle，并行度相同）的算子串在一起作为一个==算子链节点==。保证同一个算子链节点里面的所有算子都在同一个任务插槽的同一个线程中执行。这样算子之间的数据就是本地转发（无需序列化反序列化和网络IO）。两个条件：
   - 两个算子之间没有shuffle存在
   - 两个算子的并行度必须相同
 - ExecutionGraph：作业管理器根据JobGraph生成ExecutionGraph（源码：`ExecutionGraph.java`）。ExecutionGraph是JobGraph的并行化版本，是调度层最核心的数据结构。
@@ -463,9 +463,9 @@ source.setParallelism(1)
 
 StreamGraph在客户端编译时生成了JobGraph。
 
-- source和flatMap由于并行度不同，所以无法合并成一个任务链。
-- flatMap和reduce虽然并行度相同，但由于算子之间存在shuffle，所以也无法合并成一个任务链。
-- reduce和sink并行度相同，且不存在shuffle，所以可以合成一个任务链。
+- source和flatMap由于并行度不同，所以无法合并成一个算子链。
+- flatMap和reduce虽然并行度相同，但由于算子之间存在shuffle，所以也无法合并成一个算子链。
+- reduce和sink并行度相同，且不存在shuffle，所以可以合成一个算子链。
   
 
 <figure><img src="figure/11.svg" alt="JobGraph" style="width:100%;display:block;margin-left:auto;margin-right:auto;"><figcaption style="text-align:center;color:brown;">图-18 JobGraph</figcaption></figure>

@@ -1,20 +1,31 @@
 package com.atguigu.day01;
 
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.ReduceFunction;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.connector.file.src.FileSource;
+import org.apache.flink.connector.file.src.reader.TextLineInputFormat;
+import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.util.Collector;
 
 public class Example2 {
     public static void main(String[] args) throws Exception {
         var env = StreamExecutionEnvironment.getExecutionEnvironment();
-        // 将所有的算子的并行子任务的数量都设置为1
+        // 如果算子没有单独设置并行度，那么算子的并行度是1
         env.setParallelism(1);
 
+        var source = FileSource
+                .forRecordStreamFormat(
+                        new TextLineInputFormat(),
+                        new Path("/home/zuoyuan/flinktutorial0905/src/main/resources/words.txt")
+                )
+                .build();
+
         env
-                .readTextFile("/home/zuoyuan/flinktutorial0905/src/main/resources/words.txt")
+                .fromSource(source, WatermarkStrategy.noWatermarks(), "null")
                 .flatMap(new FlatMapFunction<String, Tuple2<String, Integer>>() {
                     @Override
                     public void flatMap(String input, Collector<Tuple2<String, Integer>> out) throws Exception {
