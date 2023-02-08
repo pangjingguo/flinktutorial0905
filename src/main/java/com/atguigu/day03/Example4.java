@@ -22,7 +22,7 @@ public class Example4 {
         public void run() {
             for (int i = 0; i < 10000; i++) {
                 synchronized (this) {
-                    counter++;
+                    counter++; // 不是原子性
                 }
             }
             System.out.println(counter);

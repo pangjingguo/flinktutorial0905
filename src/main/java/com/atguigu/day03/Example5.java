@@ -30,9 +30,14 @@ public class Example5 {
 
         @Override
         public void run() {
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 100; i++) {
                 // 向队列中发送数据
                 // 线程安全的写入，原子性的添加
+                try {
+                    Thread.sleep(1000L);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 queue.add(i);
             }
         }
@@ -48,13 +53,14 @@ public class Example5 {
         @Override
         public void run() {
             while (true) {
+                try {
+                    Thread.sleep(100L);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 // 从队列中消费数据
                 var value = queue.poll();
-                if (value == null) {
-                    System.out.println("数据消费完毕");
-                    break;
-                }
-                else System.out.println("消费到" + value);
+                if (value != null) System.out.println("消费到" + value);
             }
         }
     }
