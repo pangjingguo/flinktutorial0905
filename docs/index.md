@@ -870,7 +870,7 @@ Trigger中的核心方法
 ## 窗口概念
 
 - 一般真实的流都是无界的，怎样处理无界的数据？
-- 可以把无限的数据流进行切分，得到有限的数据集进行处理—也就是得到有界流。
+- 可以把无限的数据流进行切分，得到有限的数据集进行处理———也就是得到有界流。
 - 窗口（Window）就是将无限流切割为有限流的一种方式，它会将流数据分发到有限大小的桶（bucket）中进行分析。
 
 ## 窗口的本质
@@ -900,7 +900,7 @@ Flink窗口是==左闭右开==的区间，例如`[0, 5)`的窗口最后一个时
 - 将数据依据固定的窗口长度对数据进行切分。
 - 时间对齐，窗口长度固定，没有重叠。
 - 10秒钟的滚动处理时间窗口。`.window(TumblingProcessingTimeWindow.of(Time.seconds(10)))`。
-- 公式：事件所属窗口的开始时间 = 事件的时间戳 - 事件的时间戳 % 滚动窗口大小
+- ==公式==：事件所属窗口的开始时间 = 事件的时间戳 - 事件的时间戳 % 滚动窗口大小
 - 窗口是左闭右开。`[0, 10)`。最后一个时间戳是`9999ms`。
 
 <figure><img src="figure/28.svg" alt="滚动窗口" style="width:100%;display:block;margin-left:auto;margin-right:auto;"><figcaption style="text-align:center;color:brown;">图-29 滚动窗口</figcaption></figure>
