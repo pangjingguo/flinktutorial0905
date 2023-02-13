@@ -1020,7 +1020,7 @@ starts => [5,0]
 
 ### Kafka水位线设置
 
-数据源（`FlinkKafkaConsumer`）的并行度（小于）等于Kafka主题的分区数量。
+数据源（`FlinkKafkaConsumer`）的并行度（小于）==等于==Kafka主题的分区数量。
 
 插入水位线之前的所有算子的并行度和Kafka主题的分区数量一致。
 
