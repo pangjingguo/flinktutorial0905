@@ -18,16 +18,16 @@ public class Example2 {
 
         DataStreamSource<Event> leftStream = env
                 .fromElements(
-                        new Event("key-1", "left-1"),
-                        new Event("key-2", "left-2"),
-                        new Event("key-1", "left-3")
+                        new Event("key-1", "left-1", 1000L),
+                        new Event("key-2", "left-2", 1000L),
+                        new Event("key-1", "left-3", 1000L)
                 );
 
         DataStreamSource<Event> rightStream = env
                 .fromElements(
-                        new Event("key-1", "right-1"),
-                        new Event("key-2", "right-2"),
-                        new Event("key-1", "right-3")
+                        new Event("key-1", "right-1", 2000L),
+                        new Event("key-2", "right-2", 2000L),
+                        new Event("key-1", "right-3", 2000L)
                 );
 
         leftStream.keyBy(r -> r.key)
