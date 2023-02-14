@@ -8,6 +8,7 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.co.CoProcessFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
+import org.apache.flink.streaming.api.watermark.Watermark;
 import org.apache.flink.util.Collector;
 
 // leftStream和rightStream的对账
@@ -21,12 +22,15 @@ public class Example3 {
                     @Override
                     public void run(SourceContext<Event> scx) throws Exception {
                         scx.collectWithTimestamp(new Event("key-1", "left", 1000L), 1000L);
+                        Thread.sleep(1000L);
                         scx.collectWithTimestamp(new Event("key-2", "left", 2000L), 2000L);
+                        Thread.sleep(1000L);
+                        scx.emitWatermark(new Watermark(10 * 1000L));
+                        Thread.sleep(2000L);
                     }
 
                     @Override
                     public void cancel() {
-
                     }
                 });
 
@@ -34,13 +38,16 @@ public class Example3 {
                 .addSource(new SourceFunction<Event>() {
                     @Override
                     public void run(SourceContext<Event> scx) throws Exception {
-                        scx.collectWithTimestamp(new Event("key-1", "right", 300 * 1000L), 300 * 1000L);
                         scx.collectWithTimestamp(new Event("key-3", "right", 4000L), 4000L);
+                        Thread.sleep(1000L);
+                        scx.emitWatermark(new Watermark(20 * 1000L));
+                        Thread.sleep(1000L);
+                        scx.collectWithTimestamp(new Event("key-1", "right", 300 * 1000L), 300 * 1000L);
+                        Thread.sleep(1000L);
                     }
 
                     @Override
                     public void cancel() {
-
                     }
                 });
 
