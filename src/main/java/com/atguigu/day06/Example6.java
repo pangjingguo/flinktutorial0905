@@ -32,6 +32,7 @@ public class Example6 {
 
         env
                 .readTextFile("/home/zuoyuan/flinktutorial0905/src/main/resources/UserBehavior.csv")
+                .setParallelism(1)
                 .flatMap(new FlatMapFunction<String, UserBehavior>() {
                     @Override
                     public void flatMap(String in, Collector<UserBehavior> out) throws Exception {
@@ -45,6 +46,7 @@ public class Example6 {
                             out.collect(userBehavior);
                     }
                 })
+                .setParallelism(1)
                 .assignTimestampsAndWatermarks(
                         WatermarkStrategy.<UserBehavior>forBoundedOutOfOrderness(Duration.ofSeconds(0))
                         .withTimestampAssigner(new SerializableTimestampAssigner<UserBehavior>() {
@@ -54,6 +56,7 @@ public class Example6 {
                             }
                         })
                 )
+                .setParallelism(1)
                 .keyBy(r -> r.productId)
                 .window(SlidingEventTimeWindows.of(Time.hours(1), Time.minutes(5)))
                 .aggregate(
@@ -90,6 +93,7 @@ public class Example6 {
                             }
                         }
                 )
+                .setParallelism(4)
                 // 对统计信息按照窗口信息进行分组
                 .keyBy(new KeySelector<ProductViewCountPerWindow, Tuple2<Long, Long>>() {
                     @Override
@@ -98,7 +102,9 @@ public class Example6 {
                     }
                 })
                 .process(new TopN(3))
-                .print();
+                .setParallelism(2)
+                .print()
+                .setParallelism(2);
 
         try {
             env.execute();
