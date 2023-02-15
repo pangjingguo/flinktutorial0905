@@ -1076,14 +1076,14 @@ Flink的多流合并的机制是以==FIFO==的方式合并多条流。
   - 算子状态的作用范围限定为算子的并行子任务，由同一并行子任务所处理的所有数据都可以访问到相同的状态。
   - 算子状态对于同一并行子任务而言是共享的。
   - 算子状态不能由相同或不同算子的另一个并行子任务访问。
-  - 在source算子或者sink算子中使用，需要额外实现`CheckpointedFunction`接口。
+  - 在`source`算子或者`sink`算子中使用，需要额外实现`CheckpointedFunction`接口。
 - ==键控状态==（Keyed State）
   - 键控状态是根据输入数据流中定义的key来维护和访问的。
   - Flink为每个key维护一个状态实例，并将具有相同key的所有数据，都路由到算子的同一个并行子任务中，这个并行子任务会维护和处理这个key对应的键控状态。
   - 当并行子任务处理一条数据时，它会自动将状态的访问范围限定为当前数据的key。
     - KeyedProcessFunction: processElement(In in, ...), in只能读写in的key对应的状态变量和定时器。
   - 键控状态的底层维护方式是在并行子任务中维护一张HashMap。
-  - 在KeyedProcessFunction中使用。
+  - 在KeyedProcessFunction和CoProcessFunction中使用。
 - ==窗口状态==（Windowed State）：作用域是每个窗口。
   - 在trigger中使用。
   - 可以在ProcessWindowFunction中使用。
@@ -1100,7 +1100,7 @@ Flink的多流合并的机制是以==FIFO==的方式合并多条流。
 - 状态的存储、访问以及维护，由一个可插入的组件决定，这个组件就叫做状态后端（state backend）
 - 状态后端主要负责两件事
   - 本地（任务管理器的JVM的堆内存）的状态管理，保证快速读写。
-  - 将状态写入远程存储（HDFS、RocksDB、文件系统之类的）的检查点文件中。保证程序宕机之后可以从检查点文件进行故障恢复。
+  - 将内存中的状态写入远程存储（HDFS、RocksDB、文件系统之类的）的检查点文件中。保证程序宕机之后可以从检查点文件进行故障恢复。
 
 ### 选择一个状态后端
 
@@ -1113,7 +1113,7 @@ Flink的多流合并的机制是以==FIFO==的方式合并多条流。
 - RocksDBStateBackend
   - 在任务管理器的JVM堆中，维护本地状态。将所有状态序列化后，存入RocksDB中。
   - RocksDB是一个硬盘KV数据库。
-    
+  - 增量存储检查点文件。
 # 第九讲，Flink的容错机制
 
 - Flink程序如何从检查点恢复程序。（读）
