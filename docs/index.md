@@ -1182,7 +1182,7 @@ Flink的多流合并的机制是以==FIFO==的方式合并多条流。
 
 <figure><img src="figure/43.svg" alt="分界线对齐" style="width:100%;display:block;margin-left:auto;margin-right:auto;"><figcaption style="text-align:center;color:brown;">图-45 检查点分界线对齐</figcaption></figure>
 
-- 分界线对齐：检查点分界线向下游传递，sum任务会等待所有输入分区的检查点分界线到达
+- 分界线对齐：检查点分界线向下游传递，sum_even任务会等待所有输入分区的检查点分界线到达
 - 对于检查点分界线已经到达的分区，继续到达的数据会被缓存（比如蓝色三角形2后面的4）
 - 而检查点分界线尚未到达的分区，数据会被正常处理（比如红色三角形2之前到达的数据）
 
@@ -1197,7 +1197,7 @@ Sum并行子任务将它们的状态写入检查点文件，Sum的并行子任�
 
 <figure><img src="figure/46.svg" alt="检查点保存完成" style="width:100%;display:block;margin-left:auto;margin-right:auto;"><figcaption style="text-align:center;color:brown;">图-48 检查点保存完成</figcaption></figure>
 
-==此时，作业管理器接收到了所有的6个并行子任务发送过来的通知，那么就会确认本次检查点保存的完成。然后作业管理器会向所有的6个并行子任务发送一条检查点完成的广播通知==。
+==此时，作业管理器接收到了所有的6个并行子任务发送过来的快照完成的通知，那么就会确认本次检查点保存的完成。然后作业管理器会向所有的6个并行子任务发送一条检查点完成的广播通知==。
 
 # 第十讲，端到端一致性
 
