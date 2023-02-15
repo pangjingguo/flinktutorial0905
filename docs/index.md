@@ -1230,6 +1230,13 @@ Sum并行子任务将它们的状态写入检查点文件，Sum的并行子任�
 
 所谓幂等操作，是说一个操作，可以重复执行很多次，但只导致一次结果更改，也就是说，后面再重复执行就不起作用了。
 
+```java
+HashMap.put("name", "atguigu");
+HashMap.put("name", "atguigu");
+HashMap.put("name", "atguigu");
+HashMap.put("name", "atguigu");
+```
+
 ## 事务写入
 
 - 事务（Transaction）  
@@ -1239,7 +1246,7 @@ Sum并行子任务将它们的状态写入检查点文件，Sum的并行子任�
 - 实现方式
   - 两阶段提交（Two Phase Commit，2PC）
 
-## 两阶段提交
+### 两阶段提交
 
 - 对于每个检查点，Sink任务会启动一个事务（下游设备的事务，比如MySQL，Kakfa，如果下游设备不支持事务，那么必须自己实现一个事务）
 
